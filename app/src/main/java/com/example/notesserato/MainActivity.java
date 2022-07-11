@@ -1,6 +1,7 @@
 package com.example.notesserato;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +15,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements EditNoteDialogFragment.EditNoteDialogListener {
     ArrayList<Note> notes;
     NotesAdapter notes_adapter;
 
@@ -69,9 +70,19 @@ public class MainActivity extends AppCompatActivity {
         notes.add(new Note("First Note"));
         notes.add(new Note("Second Note"));
 
-        notes_adapter = new NotesAdapter(getBaseContext(), R.layout.note_layout, notes);
+        notes_adapter = new NotesAdapter(getBaseContext(), R.layout.note_layout, notes, getSupportFragmentManager());
         lvList.setAdapter(notes_adapter);
 
         notes.add(new Note("Jay Vince Serato"));
+    }
+
+    @Override
+    public void onEditListenerMethod(DialogFragment dialog) {
+        notes_adapter.onEditListenerMethod(dialog);
+    }
+
+    @Override
+    public void onCancelListenerMethod(DialogFragment dialog) {
+        notes_adapter.onCancelListenerMethod(dialog);
     }
 }
