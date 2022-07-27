@@ -9,9 +9,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import androidx.annotation.Nullable;
 
 public class NotesOpenHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "myDatabase.db";
-    private static final String DATABASE_TABLE = "Notes";
-    private static final int DATABASE_VERSION = 1;
+    public static final String DATABASE_NAME = "myDatabase.db";
+    public static final String DATABASE_TABLE = "Notes";
+    public static final int DATABASE_VERSION = 1;
 
     private static final String DATABASE_CREATE = "CREATE TABLE " +
             DATABASE_TABLE +  " (" +

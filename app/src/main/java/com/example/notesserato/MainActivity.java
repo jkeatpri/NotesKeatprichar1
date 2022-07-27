@@ -1,8 +1,13 @@
 package com.example.notesserato;
 
+import static com.example.notesserato.Note.*;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -18,6 +23,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity implements EditNoteDialogFragment.EditNoteDialogListener {
     ArrayList<Note> notes;
     NotesAdapter notes_adapter;
+    NotesOpenHelper helper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +33,19 @@ public class MainActivity extends AppCompatActivity implements EditNoteDialogFra
         setListAdapterMethod();
         btnAddListenerMethod();
         etNoteEnterListenerMethod();
+
+        helper = new NotesOpenHelper(this, NotesOpenHelper.DATABASE_NAME,
+                null, NotesOpenHelper.DATABASE_VERSION);
+        SQLiteDatabase db = helper.getWritableDatabase();
+        Cursor cursor = db.query(NotesOpenHelper.DATABASE_TABLE, null, null, null, null, null, null);
+
+        int INDEX_NOTE = cursor.getColumnIndexOrThrow(KEY_NOTE_COLUMN);
+        while(cursor.moveToNext()){
+            String note = cursor.getString(INDEX_NOTE);
+            Note n = new Note(note);
+            notes.add(n);
+        }
+
     }
 
     private void etNoteEnterListenerMethod() {
@@ -37,10 +56,7 @@ public class MainActivity extends AppCompatActivity implements EditNoteDialogFra
                 if (keyEvent.getAction() == KeyEvent.ACTION_DOWN ||
                         keyEvent.getAction() == KeyEvent.KEYCODE_ENTER ||
                         keyEvent.getAction() == KeyEvent.KEYCODE_NUMPAD_ENTER) {
-                    String note = etNote.getText().toString();
-                    notes.add(new Note(note));
-                    notes_adapter.notifyDataSetChanged();
-                    etNote.setText("");
+                    addNoteMethod();
                     return true;
                 }
                 return false;
@@ -48,18 +64,27 @@ public class MainActivity extends AppCompatActivity implements EditNoteDialogFra
         });
     }
 
+    public void addNoteMethod(){
+        EditText etNote = findViewById(R.id.etNote);
+        String note = etNote.getText().toString();
+        notes.add(new Note(note));
+        notes_adapter.notifyDataSetChanged();
+        etNote.setText("");
+
+        ContentValues cv = new ContentValues();
+        cv.put(KEY_NOTE_COLUMN, note);
+
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.insert(NotesOpenHelper.DATABASE_TABLE, null, cv);
+    }
+
     private void btnAddListenerMethod() {
         Button btnAdd = findViewById(R.id.btnAdd);
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText etNote = findViewById(R.id.etNote);
-                String note = etNote.getText().toString();
-                notes.add(new Note(note));
-                notes_adapter.notifyDataSetChanged();
-                etNote.setText("");
-//                Log.d("vince", "on click works");
-//                Toast.makeText(getBaseContext(), "Click Add", Toast.LENGTH_SHORT).show();
+                addNoteMethod();
+
             }
         });
     }
