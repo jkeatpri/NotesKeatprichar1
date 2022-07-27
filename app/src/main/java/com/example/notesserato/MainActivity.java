@@ -30,19 +30,22 @@ public class MainActivity extends AppCompatActivity implements EditNoteDialogFra
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        setListAdapterMethod();
-        btnAddListenerMethod();
-        etNoteEnterListenerMethod();
-
         helper = new NotesOpenHelper(this, NotesOpenHelper.DATABASE_NAME,
                 null, NotesOpenHelper.DATABASE_VERSION);
         SQLiteDatabase db = helper.getWritableDatabase();
         Cursor cursor = db.query(NotesOpenHelper.DATABASE_TABLE, null, null, null, null, null, null);
 
+        setListAdapterMethod();
+        btnAddListenerMethod();
+        etNoteEnterListenerMethod();
+
         int INDEX_NOTE = cursor.getColumnIndexOrThrow(KEY_NOTE_COLUMN);
+        int INDEX_ID = cursor.getColumnIndexOrThrow(KEY_ID);
         while(cursor.moveToNext()){
             String note = cursor.getString(INDEX_NOTE);
+            int id = cursor.getInt(INDEX_ID);
             Note n = new Note(note);
+            n.id = id;
             notes.add(n);
         }
 
@@ -67,15 +70,18 @@ public class MainActivity extends AppCompatActivity implements EditNoteDialogFra
     public void addNoteMethod(){
         EditText etNote = findViewById(R.id.etNote);
         String note = etNote.getText().toString();
-        notes.add(new Note(note));
-        notes_adapter.notifyDataSetChanged();
         etNote.setText("");
 
         ContentValues cv = new ContentValues();
         cv.put(KEY_NOTE_COLUMN, note);
 
         SQLiteDatabase db = helper.getWritableDatabase();
-        db.insert(NotesOpenHelper.DATABASE_TABLE, null, cv);
+        int id = (int) db.insert(NotesOpenHelper.DATABASE_TABLE, null, cv);
+
+        Note n = new Note(note);
+        n.id = id;
+        notes.add(n);
+        notes_adapter.notifyDataSetChanged();
     }
 
     private void btnAddListenerMethod() {
@@ -92,13 +98,8 @@ public class MainActivity extends AppCompatActivity implements EditNoteDialogFra
     private void setListAdapterMethod() {
         ListView lvList = findViewById(R.id.lvList);
         notes = new ArrayList<>();
-        notes.add(new Note("First Note"));
-        notes.add(new Note("Second Note"));
-
-        notes_adapter = new NotesAdapter(getBaseContext(), R.layout.note_layout, notes, getSupportFragmentManager());
+        notes_adapter = new NotesAdapter(getBaseContext(), R.layout.note_layout, notes, getSupportFragmentManager(), helper);
         lvList.setAdapter(notes_adapter);
-
-        notes.add(new Note("Jay Vince Serato"));
     }
 
     @Override

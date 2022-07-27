@@ -9,6 +9,7 @@ public class Note {
     public static final String KEY_NOTE_COLUMN = "NOTE_COLUMN";
     public static final String KEY_NOTE_CREATED_COLUMN = "NOTE_CREATED_COLUMN";
 
+    int id;
     String note;
     Date created;
 
