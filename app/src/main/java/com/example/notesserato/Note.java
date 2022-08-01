@@ -8,10 +8,12 @@ public class Note {
 
     public static final String KEY_NOTE_COLUMN = "NOTE_COLUMN";
     public static final String KEY_NOTE_CREATED_COLUMN = "NOTE_CREATED_COLUMN";
+    public static final String KEY_NOTE_IMPORTANT_COLUMN = "NOTE_IMPORTANT_COLUMN";
 
     int id;
     String note;
     Date created;
+    boolean important;
 
     public Note(String note) {
         this.note = note;
