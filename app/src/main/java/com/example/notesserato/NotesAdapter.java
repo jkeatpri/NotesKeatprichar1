@@ -2,9 +2,12 @@ package com.example.notesserato;
 
 import static com.example.notesserato.Note.*;
 
+import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,9 +81,10 @@ public class NotesAdapter extends ArrayAdapter<Note> {
                 int id = note.id;
                 String selector = KEY_ID + "=?" + id;
                 String selectorArgs[] = null;
-                SQLiteDatabase db = helper.getWritableDatabase();
-                db.delete(NotesOpenHelper.DATABASE_TABLE, selector, selectorArgs);
-
+    //            SQLiteDatabase db = helper.getWritableDatabase();
+    //            db.delete(NotesOpenHelper.DATABASE_TABLE, selector, selectorArgs);
+                ContentResolver cr = getContext().getContentResolver();
+                cr.delete(NoteContentProvider.CONTENT_URI, selector, selectorArgs);
 
                 notes.remove(note);
                 notifyDataSetChanged();
@@ -114,8 +118,11 @@ public class NotesAdapter extends ArrayAdapter<Note> {
         String selector = KEY_ID + "=" + current.id;
         String selectorArgs[] = null;
 
-        SQLiteDatabase db = helper.getWritableDatabase();
-        db.update(NotesOpenHelper.DATABASE_TABLE, cv, selector, selectorArgs);
+        ContentResolver cr = getContext().getContentResolver();
+        Uri rowUri = ContentUris.withAppendedId(NoteContentProvider.CONTENT_URI, current.id);
+        cr.update(rowUri, cv, null, null);
+//        SQLiteDatabase db = helper.getWritableDatabase();
+//        db.update(NotesOpenHelper.DATABASE_TABLE, cv, selector, selectorArgs);
         current = null;
     }
 

@@ -21,18 +21,22 @@ public class Note {
     }
 
     public String getNote() {
+
         return note;
     }
 
     public void setNote(String note) {
+
         this.note = note;
     }
 
     public Date getCreated() {
+
         return created;
     }
 
     public void setCreated(Date created) {
+
         this.created = created;
     }
 

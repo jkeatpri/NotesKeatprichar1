@@ -3,12 +3,14 @@ package com.example.notesserato;
 import static com.example.notesserato.Note.*;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,22 +57,78 @@ public class NoteContentProvider extends ContentProvider {
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
-        return null;
+        switch (matcher.match(uri)){
+            case SINGLE_ROW:
+                return "vnd.android.cursor.item/vnd.example.notes";
+            case ALL_ROWS:
+                return "vnd.android.cursor.dir/vnd.example.notes";
+            default:
+                throw new IllegalArgumentException("Unsupported URI: " + uri);
+        }
     }
 
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
+        SQLiteDatabase db = helper.getWritableDatabase();
+        String nullColumnHack = null;
+        long id = db.insert(NotesOpenHelper.DATABASE_TABLE, nullColumnHack, values);
+
+        if(id > -1){
+            Uri inserted = ContentUris.withAppendedId(CONTENT_URI, id);
+            getContext().getContentResolver().notifyChange(inserted, null);
+            return inserted;
+        }
         return null;
     }
 
     @Override
     public int delete(@NonNull Uri uri, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        switch (matcher.match(uri)){
+            case SINGLE_ROW:
+                String rowID = uri.getPathSegments().get(1);
+                String row = KEY_ID + "=" + rowID;
+                if(!TextUtils.isEmpty(selection)){
+                    row += " AND ( " + selection + " )";
+                }
+                selection = row;
+            default:
+                break;
+        }
+
+        if (selection == null){
+            selection = "1";
+        }
+
+        int deleteCount = db.delete(NotesOpenHelper.DATABASE_TABLE, selection, selectionArgs);
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return deleteCount;
     }
 
     @Override
     public int update(@NonNull Uri uri, @Nullable ContentValues values, @Nullable String selection, @Nullable String[] selectionArgs) {
-        return 0;
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        switch (matcher.match(uri)){
+            case SINGLE_ROW:
+                String rowID = uri.getPathSegments().get(1);
+                String row = KEY_ID + "=" + rowID;
+                if(!TextUtils.isEmpty(selection)){
+                    row += " AND ( " + selection + " )";
+                }
+                selection = row;
+            default:
+                break;
+        }
+
+        int updateCount = db.update(NotesOpenHelper.DATABASE_TABLE, values, selection, selectionArgs);
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return updateCount;
     }
 }

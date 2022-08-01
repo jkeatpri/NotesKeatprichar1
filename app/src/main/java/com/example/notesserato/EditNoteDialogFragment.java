@@ -17,6 +17,7 @@ public class EditNoteDialogFragment extends DialogFragment {
     String note;
 
     public EditNoteDialogFragment(String note) {
+
         this.note = note;
     }
 
