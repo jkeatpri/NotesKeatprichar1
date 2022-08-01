@@ -31,7 +31,6 @@ public class NoteContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         helper = new NotesOpenHelper(getContext(), NotesOpenHelper.DATABASE_NAME, null, NotesOpenHelper.DATABASE_VERSION);
-
         return true;
     }
 

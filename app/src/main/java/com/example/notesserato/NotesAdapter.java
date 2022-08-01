@@ -110,6 +110,7 @@ public class NotesAdapter extends ArrayAdapter<Note> {
     }
 
     public void onCancelListenerMethod(DialogFragment dialog) {
+
         current = null;
     }
 }
